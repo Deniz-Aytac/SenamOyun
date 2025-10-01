@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tokatlanabilir Deniz</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-image: url('images/bbb.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .game-container {
+            text-align: center;
+            position: relative;
+        }
+
+        .character {
+            width: 150px;
+            height: 400px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            margin: 50px auto;
+        }
+
+        .head {
+            width: 100px;
+            height: 100px;
+            background: #fdbcb4;
+            border-radius: 50%;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .face-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .body {
+            width: 80px;
+            height: 100px;
+            background: #4a90e2;
+            border-radius: 10px;
+            position: absolute;
+            top: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .arm-left, .arm-right {
+            width: 25px;
+            height: 80px;
+            background: #fdbcb4;
+            border-radius: 10px;
+            position: absolute;
+            top: 100px;
+        }
+
+        .arm-left {
+            left: 20px;
+            transform: rotate(-20deg);
+        }
+
+        .arm-right {
+            right: 20px;
+            transform: rotate(20deg);
+        }
+
+        .leg-left, .leg-right {
+            width: 30px;
+            height: 100px;
+            background: #2c3e50;
+            border-radius: 10px;
+            position: absolute;
+            top: 190px;
+        }
+
+        .leg-left {
+            left: 35px;
+        }
+
+        .leg-right {
+            right: 35px;
+        }
+
+        .character:hover {
+            transform: scale(1.05);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+                overflow-x: hidden;
+            }
+
+            .instructions {
+                font-size: 18px;
+                margin-bottom: 20px;
+            }
+
+            .character {
+                width: 120px;
+                height: 320px;
+                margin: 30px auto;
+            }
+
+            .head {
+                width: 80px;
+                height: 80px;
+            }
+
+            .body {
+                width: 60px;
+                height: 80px;
+                top: 70px;
+            }
+
+            .arm-left, .arm-right {
+                width: 20px;
+                height: 60px;
+                top: 80px;
+            }
+
+            .leg-left, .leg-right {
+                width: 25px;
+                height: 80px;
+                top: 150px;
+            }
+
+            .character.flipped .head {
+                top: 240px;
+            }
+
+            .character.flipped .body {
+                top: 160px;
+            }
+
+            .character.flipped .arm-left,
+            .character.flipped .arm-right {
+                top: 180px;
+            }
+
+            .controls {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                margin-bottom: 20px;
+            }
+
+            .flip-button, .kick-button, .swear-button {
+                padding: 10px 20px;
+                font-size: 14px;
+                margin: 5px 0;
+            }
+
+            .counter {
+                font-size: 16px;
+                margin-top: 20px;
+                padding: 8px 16px;
+            }
+
+            .slap-effect, .butt-slap-effect, .kick-effect, .swear-effect {
+                font-size: 40px;
+            }
+
+            .swear-effect {
+                font-size: 50px;
+                padding: 15px 30px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .character {
+                width: 100px;
+                height: 280px;
+            }
+
+            .head {
+                width: 70px;
+                height: 70px;
+            }
+
+            .body {
+                width: 50px;
+                height: 70px;
+                top: 60px;
+            }
+
+            .arm-left, .arm-right {
+                width: 18px;
+                height: 50px;
+                top: 70px;
+            }
+
+            .leg-left, .leg-right {
+                width: 22px;
+                height: 70px;
+                top: 130px;
+            }
+
+            .character.flipped .head {
+                top: 210px;
+            }
+
+            .character.flipped .body {
+                top: 140px;
+            }
+
+            .character.flipped .arm-left,
+            .character.flipped .arm-right {
+                top: 160px;
+            }
+
+            .instructions {
+                font-size: 16px;
+            }
+
+            .flip-button, .kick-button, .swear-button {
+                padding: 8px 16px;
+                font-size: 12px;
+            }
+
+            .counter {
+                font-size: 14px;
+            }
+        }
+
+        .character.slapped {
+            animation: slapAnimation 0.3s ease-in-out;
+        }
+
+        .character.slapped .arm-left {
+            animation: armSlap 0.3s ease-in-out;
+        }
+
+        .character.slapped .arm-right {
+            animation: armSlap 0.3s ease-in-out;
+        }
+
+        .character.flipped {
+            transform: rotate(180deg);
+        }
+
+        .character.flipped .head {
+            top: 300px;
+        }
+
+        .character.flipped .body {
+            top: 200px;
+        }
+
+        .character.flipped .arm-left {
+            top: 220px;
+            transform: rotate(20deg);
+        }
+
+        .character.flipped .arm-right {
+            top: 220px;
+            transform: rotate(-20deg);
+        }
+
+        .character.flipped .leg-left,
+        .character.flipped .leg-right {
+            top: 0;
+        }
+
+        .character.flipped .leg-left {
+            left: 35px;
+        }
+
+        .character.flipped .leg-right {
+            right: 35px;
+        }
+
+        .character.flipped .face-image {
+            transform: rotate(180deg);
+        }
+
+        .character.butt-slapped {
+            animation: buttSlapAnimation 0.4s ease-in-out;
+        }
+
+        .character.butt-slapped .leg-left,
+        .character.butt-slapped .leg-right {
+            animation: legShake 0.4s ease-in-out;
+        }
+
+        .character.flipped.butt-slapped .leg-left,
+        .character.flipped.butt-slapped .leg-right {
+            animation: legShake 0.4s ease-in-out;
+        }
+
+        .character.kicked {
+            animation: kickAnimation 0.5s ease-in-out;
+        }
+
+        .character.kicked .leg-left,
+        .character.kicked .leg-right {
+            animation: kickLeg 0.5s ease-in-out;
+        }
+
+        .character.swearing {
+            animation: swearAnimation 0.8s ease-in-out;
+        }
+
+        .character.swearing .head {
+            animation: headShake 0.8s ease-in-out;
+        }
+
+        @keyframes slapAnimation {
+            0% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(-15deg) scale(0.95); }
+            50% { transform: rotate(15deg) scale(0.9); }
+            75% { transform: rotate(-8deg) scale(0.95); }
+            100% { transform: rotate(0deg) scale(1); }
+        }
+
+        @keyframes armSlap {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(-30deg); }
+            50% { transform: rotate(30deg); }
+            75% { transform: rotate(-15deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        @keyframes buttSlapAnimation {
+            0% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(-20deg) scale(0.9); }
+            50% { transform: rotate(20deg) scale(0.85); }
+            75% { transform: rotate(-10deg) scale(0.9); }
+            100% { transform: rotate(0deg) scale(1); }
+        }
+
+        @keyframes legShake {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(-15deg); }
+            50% { transform: rotate(15deg); }
+            75% { transform: rotate(-8deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        @keyframes kickAnimation {
+            0% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(-25deg) scale(1.1); }
+            50% { transform: rotate(25deg) scale(1.05); }
+            75% { transform: rotate(-15deg) scale(1.1); }
+            100% { transform: rotate(0deg) scale(1); }
+        }
+
+        @keyframes kickLeg {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(-45deg); }
+            50% { transform: rotate(45deg); }
+            75% { transform: rotate(-25deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        @keyframes swearAnimation {
+            0% { transform: rotate(0deg) scale(1); }
+            10% { transform: rotate(-5deg) scale(1.05); }
+            20% { transform: rotate(5deg) scale(1.1); }
+            30% { transform: rotate(-8deg) scale(1.15); }
+            40% { transform: rotate(8deg) scale(1.2); }
+            50% { transform: rotate(-10deg) scale(1.25); }
+            60% { transform: rotate(10deg) scale(1.2); }
+            70% { transform: rotate(-8deg) scale(1.15); }
+            80% { transform: rotate(8deg) scale(1.1); }
+            90% { transform: rotate(-5deg) scale(1.05); }
+            100% { transform: rotate(0deg) scale(1); }
+        }
+
+        @keyframes headShake {
+            0% { transform: translateX(0); }
+            10% { transform: translateX(-3px); }
+            20% { transform: translateX(3px); }
+            30% { transform: translateX(-5px); }
+            40% { transform: translateX(5px); }
+            50% { transform: translateX(-3px); }
+            60% { transform: translateX(3px); }
+            70% { transform: translateX(-2px); }
+            80% { transform: translateX(2px); }
+            90% { transform: translateX(-1px); }
+            100% { transform: translateX(0); }
+        }
+
+        .face {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+
+        .eyes {
+            display: flex;
+            justify-content: space-between;
+            width: 50px;
+            margin: 0 auto 15px;
+        }
+
+        .eye {
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .eye::after {
+            content: '';
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: black;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .mouth {
+            width: 25px;
+            height: 12px;
+            border: 2px solid #333;
+            border-top: none;
+            border-radius: 0 0 25px 25px;
+            margin: 0 auto;
+        }
+
+        .character.slapped .mouth {
+            animation: mouthShake 0.3s ease-in-out;
+        }
+
+        @keyframes mouthShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-2px); }
+            75% { transform: translateX(2px); }
+        }
+
+        .slap-effect {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 60px;
+            color: #ff4757;
+            pointer-events: none;
+            opacity: 0;
+            z-index: 10;
+        }
+
+        .butt-slap-effect {
+            position: absolute;
+            top: 70%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 50px;
+            color: #ff6b35;
+            pointer-events: none;
+            opacity: 0;
+            z-index: 10;
+        }
+
+        .character.flipped .butt-slap-effect {
+            top: 30%;
+        }
+
+        .kick-effect {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 55px;
+            color: #ff4757;
+            pointer-events: none;
+            opacity: 0;
+            z-index: 10;
+        }
+
+        .swear-effect {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 60px;
+            color: #000000;
+            background: #ffffff;
+            padding: 20px 40px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            pointer-events: none;
+            opacity: 0;
+            z-index: 10;
+            font-weight: bold;
+            border: 3px solid #000000;
+        }
+
+        .slap-effect.show {
+            animation: slapText 0.5s ease-out;
+        }
+
+        .butt-slap-effect.show {
+            animation: buttSlapText 0.6s ease-out;
+        }
+
+        .kick-effect.show {
+            animation: kickText 0.7s ease-out;
+        }
+
+        .swear-effect.show {
+            animation: swearText 1s ease-out;
+        }
+
+        @keyframes slapText {
+            0% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(0.5);
+            }
+            50% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.2);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(1.5);
+            }
+        }
+
+        @keyframes buttSlapText {
+            0% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(0.3);
+            }
+            50% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.3);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(1.8);
+            }
+        }
+
+        @keyframes kickText {
+            0% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(0.4);
+            }
+            50% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.4);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(2);
+            }
+        }
+
+        @keyframes swearText {
+            0% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(0.2);
+            }
+            30% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.5);
+            }
+            70% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.2);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(1.8);
+            }
+        }
+
+        .instructions {
+            color: white;
+            font-size: 24px;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .controls {
+            margin-bottom: 20px;
+        }
+
+        .flip-button, .kick-button, .swear-button {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 0 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .kick-button {
+            background: linear-gradient(45deg, #ff9f43, #ff6348);
+        }
+
+        .swear-button {
+            background: linear-gradient(45deg, #ff3838, #ff6b6b);
+        }
+
+        .flip-button:hover, .kick-button:hover, .swear-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .flip-button:active, .kick-button:active, .swear-button:active {
+            transform: translateY(0);
+        }
+
+        .counter {
+            color: white;
+            font-size: 20px;
+            margin-top: 30px;
+            background: rgba(255,255,255,0.2);
+            padding: 10px 20px;
+            border-radius: 25px;
+            display: inline-block;
+        }
+
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #ff6b6b;
+            border-radius: 50%;
+            animation: particleFloat 1s ease-out forwards;
+        }
+
+        @keyframes particleFloat {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0) translateY(-100px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="instructions">Ödev Arası Belki Tebessüm Edersin</div>
+        
+        <div class="controls">
+            <button class="flip-button" id="flipButton">🔄 Ters Çevir</button>
+            <button class="kick-button" id="kickButton">🦵 Tekme At</button>
+            <button class="swear-button" id="swearButton">😡 Küfür Et</button>
+        </div>
+        
+        <div class="character" id="character">
+            <div class="head">
+                <img src="images/aaa.jpg" alt="Yüz" class="face-image">
+            </div>
+            <div class="body"></div>
+            <div class="arm-left"></div>
+            <div class="arm-right"></div>
+            <div class="leg-left"></div>
+            <div class="leg-right"></div>
+        </div>
+        
+        <div class="slap-effect" id="slapEffect">TOKAT!</div>
+        <div class="butt-slap-effect" id="buttSlapEffect">🍑 ŞAPLAK!</div>
+        <div class="kick-effect" id="kickEffect">🦵 TEKME!</div>
+        <div class="swear-effect" id="swearEffect">EŞŞEK</div>
+        <div class="particles" id="particles"></div>
+        
+        <div class="counter">
+            Tokat: <span id="slapCount">0</span> | 
+            Şaplak: <span id="buttSlapCount">0</span> |
+            Tekme: <span id="kickCount">0</span> |
+            Küfür: <span id="swearCount">0</span>
+        </div>
+    </div>
+
+    <script>
+        const character = document.getElementById('character');
+        const slapEffect = document.getElementById('slapEffect');
+        const buttSlapEffect = document.getElementById('buttSlapEffect');
+        const kickEffect = document.getElementById('kickEffect');
+        const swearEffect = document.getElementById('swearEffect');
+        const particles = document.getElementById('particles');
+        const slapCount = document.getElementById('slapCount');
+        const buttSlapCount = document.getElementById('buttSlapCount');
+        const kickCount = document.getElementById('kickCount');
+        const swearCount = document.getElementById('swearCount');
+        const flipButton = document.getElementById('flipButton');
+        const kickButton = document.getElementById('kickButton');
+        const swearButton = document.getElementById('swearButton');
+        
+        let count = 0;
+        let buttCount = 0;
+        let kickCountValue = 0;
+        let swearCountValue = 0;
+        let isFlipped = false;
+
+        character.addEventListener('click', function() {
+            if (isFlipped) {
+                // Ters çevrilmişse popoya şaplak
+                character.classList.add('butt-slapped');
+                buttSlapEffect.classList.add('show');
+                buttCount++;
+                buttSlapCount.textContent = buttCount;
+                playButtSlapSound();
+                
+                setTimeout(() => {
+                    character.classList.remove('butt-slapped');
+                    buttSlapEffect.classList.remove('show');
+                }, 400);
+            } else {
+                // Normal tokat
+                character.classList.add('slapped');
+                slapEffect.classList.add('show');
+                count++;
+                slapCount.textContent = count;
+                playSlapSound();
+                
+                setTimeout(() => {
+                    character.classList.remove('slapped');
+                    slapEffect.classList.remove('show');
+                }, 300);
+            }
+            
+            // Parçacık efekti oluştur
+            createParticles();
+        });
+
+        function createParticles() {
+            for (let i = 0; i < 8; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                // Rastgele pozisyon
+                const angle = (Math.PI * 2 * i) / 8;
+                const distance = 50 + Math.random() * 30;
+                const x = 100 + Math.cos(angle) * distance;
+                const y = 100 + Math.sin(angle) * distance;
+                
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+                
+                particles.appendChild(particle);
+                
+                // Parçacığı temizle
+                setTimeout(() => {
+                    if (particle.parentNode) {
+                        particle.parentNode.removeChild(particle);
+                    }
+                }, 1000);
+            }
+        }
+
+        function playSlapSound() {
+            // Basit ses efekti için Web Audio API kullan
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(50, audioContext.currentTime + 0.1);
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.1);
+            } catch (e) {
+                console.log('Ses çalınamadı');
+            }
+        }
+
+        function playButtSlapSound() {
+            // Popoya şaplak ses efekti
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(150, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(30, audioContext.currentTime + 0.15);
+                
+                gainNode.gain.setValueAtTime(0.4, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.15);
+            } catch (e) {
+                console.log('Ses çalınamadı');
+            }
+        }
+
+        function playKickSound() {
+            // Tekme ses efekti
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(300, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(80, audioContext.currentTime + 0.2);
+                
+                gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.2);
+            } catch (e) {
+                console.log('Ses çalınamadı');
+            }
+        }
+
+        function playSwearSound() {
+            // Küfür ses efekti
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(100, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(20, audioContext.currentTime + 0.3);
+                
+                gainNode.gain.setValueAtTime(0.6, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.3);
+            } catch (e) {
+                console.log('Ses çalınamadı');
+            }
+        }
+
+        // Ters çevir butonu
+        flipButton.addEventListener('click', function() {
+            isFlipped = !isFlipped;
+            character.classList.toggle('flipped');
+            
+            if (isFlipped) {
+                flipButton.textContent = '🔄 Düz Çevir';
+                flipButton.style.background = 'linear-gradient(45deg, #4ecdc4, #44a08d)';
+            } else {
+                flipButton.textContent = '🔄 Ters Çevir';
+                flipButton.style.background = 'linear-gradient(45deg, #ff6b6b, #ee5a24)';
+            }
+        });
+
+        // Tekme at butonu
+        kickButton.addEventListener('click', function() {
+            character.classList.add('kicked');
+            kickEffect.classList.add('show');
+            kickCountValue++;
+            kickCount.textContent = kickCountValue;
+            playKickSound();
+            createParticles();
+            
+            setTimeout(() => {
+                character.classList.remove('kicked');
+                kickEffect.classList.remove('show');
+            }, 500);
+        });
+
+        // Küfür et butonu
+        swearButton.addEventListener('click', function() {
+            character.classList.add('swearing');
+            swearEffect.classList.add('show');
+            swearCountValue++;
+            swearCount.textContent = swearCountValue;
+            playSwearSound();
+            
+            setTimeout(() => {
+                character.classList.remove('swearing');
+                swearEffect.classList.remove('show');
+            }, 800);
+        });
+
+        // Karaktere hover efekti
+        character.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.1)';
+        });
+
+        character.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+        });
+    </script>
+</body>
+</html>
